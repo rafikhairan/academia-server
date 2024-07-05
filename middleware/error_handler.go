@@ -7,7 +7,7 @@ import (
 )
 
 func ErrorHandler(ctx *fiber.Ctx, err error) error {
-	response := model.WebResponse{
+	response := model.WebResponse[any]{
 		Code:   500,
 		Errors: err.Error(),
 	}

@@ -13,9 +13,14 @@ type Random struct {
 
 func NewRouter(db *gorm.DB, validate *validator.Validate) *fiber.App {
 	router := fiber.New()
+
 	userRoutes := NewUserRoutes(db, validate)
+	specializationRoutes := NewSpecializationRoutes(db, validate)
+	courseRoutes := NewCourseRoutes(db, validate)
 
 	router.Mount("/users", userRoutes)
+	router.Mount("/specializations", specializationRoutes)
+	router.Mount("/courses", courseRoutes)
 
 	return router
 }

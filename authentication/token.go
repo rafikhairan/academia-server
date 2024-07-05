@@ -8,15 +8,15 @@ import (
 	"time"
 )
 
-type AuthenticationClaims struct {
-	ID uuid.UUID
+type UserClaims struct {
+	ID uuid.UUID `json:"id"`
 	jwt.RegisteredClaims
 }
 
 func GenerateToken(user model.User) string {
 	JWTConfig := config.AppConfig.JWT
 
-	claims := AuthenticationClaims{
+	claims := UserClaims{
 		ID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    config.AppConfig.AppName,

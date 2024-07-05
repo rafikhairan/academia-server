@@ -6,7 +6,7 @@ import (
 	"github.com/rafikhairan/academia/exception"
 )
 
-func ParseAndValidate(ctx *fiber.Ctx, request any, validate *validator.Validate) error {
+func ParseAndValidate[T any](ctx *fiber.Ctx, request T, validate *validator.Validate) error {
 	if err := ctx.BodyParser(request); err != nil {
 		return err
 	}

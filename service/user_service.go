@@ -8,24 +8,24 @@ import (
 )
 
 type UserService struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{db: db}
+	return &UserService{DB: db}
 }
 
-func (service *UserService) Register(request model.RegisterRequest) (model.User, error) {
+func (service *UserService) Register(request model.RegisterRequest) (model.UserAuthenticationData, error) {
 	var user model.User
+	var userAuthData model.UserAuthenticationData
 
-	result := service.db.Where("email = ?", request.Email).First(&user)
-	if result.RowsAffected >= 1 {
-		return user, fiber.NewError(400, "register failed")
+	if result := service.DB.First(&user, "email = ?", request.Email); result.RowsAffected >= 1 {
+		return userAuthData, fiber.NewError(400, "register failed")
 	}
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 10)
 	if err != nil {
-		return user, err
+		return userAuthData, err
 	}
 
 	user = model.User{
@@ -33,25 +33,24 @@ func (service *UserService) Register(request model.RegisterRequest) (model.User,
 		Password: string(hashPassword),
 	}
 
-	if result = service.db.Create(&user); result.Error != nil {
-		return user, result.Error
+	if result := service.DB.Create(&user).Scan(&userAuthData); result.Error != nil {
+		return userAuthData, result.Error
 	}
 
-	return user, nil
+	return userAuthData, nil
 }
 
-func (service *UserService) Login(request model.LoginRequest) (model.User, error) {
+func (service *UserService) Login(request model.LoginRequest) (model.UserAuthenticationData, error) {
 	var user model.User
+	var userAuthData model.UserAuthenticationData
 
-	result := service.db.Select("id", "email", "password").Where("email = ?", request.Email).First(&user)
-	if result.RowsAffected == 0 {
-		return user, fiber.NewError(404, "email not found")
+	if result := service.DB.First(&user, "email = ?", request.Email).Scan(&userAuthData); result.RowsAffected == 0 {
+		return userAuthData, fiber.NewError(404, "email not found")
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password))
-	if err != nil {
-		return user, fiber.NewError(401, "password incorrect")
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
+		return userAuthData, fiber.NewError(401, "password incorrect")
 	}
 
-	return user, nil
+	return userAuthData, nil
 }
