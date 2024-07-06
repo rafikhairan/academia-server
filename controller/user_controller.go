@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rafikhairan/academia/auth"
 	"github.com/rafikhairan/academia/helper"
 	"github.com/rafikhairan/academia/model"
 	"github.com/rafikhairan/academia/service"
@@ -32,7 +33,7 @@ func (controller *UserController) Register(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	response := model.WebResponse[model.UserAuthenticationData]{
+	response := model.WebResponse[model.UserAuthData]{
 		Code: 201,
 		Data: user,
 	}
@@ -52,10 +53,11 @@ func (controller *UserController) Login(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	response := model.WebResponse[model.UserAuthenticationData]{
+	response := model.WebResponse[model.UserAuthData]{
 		Code: 200,
 		Data: user,
 	}
+	response.Token = auth.GenerateToken(user)
 
 	return ctx.Status(response.Code).JSON(response)
 }

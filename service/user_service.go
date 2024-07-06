@@ -15,9 +15,9 @@ func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{DB: db}
 }
 
-func (service *UserService) Register(request model.RegisterRequest) (model.UserAuthenticationData, error) {
+func (service *UserService) Register(request model.RegisterRequest) (model.UserAuthData, error) {
 	var user model.User
-	var userAuthData model.UserAuthenticationData
+	var userAuthData model.UserAuthData
 
 	if result := service.DB.First(&user, "email = ?", request.Email); result.RowsAffected >= 1 {
 		return userAuthData, fiber.NewError(400, "register failed")
@@ -40,9 +40,9 @@ func (service *UserService) Register(request model.RegisterRequest) (model.UserA
 	return userAuthData, nil
 }
 
-func (service *UserService) Login(request model.LoginRequest) (model.UserAuthenticationData, error) {
+func (service *UserService) Login(request model.LoginRequest) (model.UserAuthData, error) {
 	var user model.User
-	var userAuthData model.UserAuthenticationData
+	var userAuthData model.UserAuthData
 
 	if result := service.DB.First(&user, "email = ?", request.Email).Scan(&userAuthData); result.RowsAffected == 0 {
 		return userAuthData, fiber.NewError(404, "email not found")

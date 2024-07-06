@@ -4,6 +4,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rafikhairan/academia/controller"
+	"github.com/rafikhairan/academia/middleware"
 	"github.com/rafikhairan/academia/service"
 	"gorm.io/gorm"
 )
@@ -13,6 +14,8 @@ func NewSpecializationRoutes(db *gorm.DB, validate *validator.Validate) *fiber.A
 
 	specializationService := service.NewSpecializationService(db)
 	specializationController := controller.NewSpecializationController(specializationService, validate)
+
+	route.Use(middleware.AuthMiddleware)
 
 	route.Post("/", specializationController.Create)
 	route.Get("/", specializationController.GetAll)

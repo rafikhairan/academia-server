@@ -1,4 +1,4 @@
-package authentication
+package auth
 
 import (
 	"github.com/golang-jwt/jwt/v5"
@@ -13,14 +13,14 @@ type UserClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(user model.User) string {
+func GenerateToken(user model.UserAuthData) string {
 	JWTConfig := config.AppConfig.JWT
 
 	claims := UserClaims{
 		ID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    config.AppConfig.AppName,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * JWTConfig.Expiration)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * JWTConfig.Expiration)),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
