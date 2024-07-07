@@ -66,7 +66,7 @@ func (service *SpecializationService) Update(request model.UpdateSpecializationR
 
 	specialization.Name = request.Name
 	specialization.Description = request.Description
-	
+
 	result := service.DB.Save(&specialization)
 	helper.PanicIfError(result.Error)
 
