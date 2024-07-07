@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/rafikhairan/academia/database"
 	"github.com/rafikhairan/academia/middleware"
 	"github.com/rafikhairan/academia/route"
@@ -14,6 +15,7 @@ func main() {
 	validate := validator.New()
 	router := route.NewRouter(db, validate)
 
+	app.Use(recover.New())
 	app.Mount("/api", router)
 
 	if err := app.Listen(":3000"); err != nil {

@@ -21,88 +21,59 @@ func NewSpecializationController(service *service.SpecializationService, validat
 }
 
 func (controller *SpecializationController) Create(ctx *fiber.Ctx) error {
-	request := model.SpecializationRequest{}
+	request := model.CreateSpecializationRequest{}
+	helper.ParseAndValidate[*model.CreateSpecializationRequest](ctx, &request, controller.Validate)
+	data := controller.Service.Create(request)
 
-	if err := helper.ParseAndValidate[*model.SpecializationRequest](ctx, &request, controller.Validate); err != nil {
-		return err
-	}
-
-	specialization, err := controller.Service.Create(request)
-	if err != nil {
-		return err
-	}
-
-	response := model.WebResponse[model.SpecializationData]{
-		Code: 201,
-		Data: specialization,
-	}
-
-	return ctx.Status(response.Code).JSON(response)
+	return ctx.Status(201).JSON(model.SuccessResponse[model.SpecializationResponse]{
+		Code:   201,
+		Status: "CREATED",
+		Data:   data,
+	})
 }
 
 func (controller *SpecializationController) GetAll(ctx *fiber.Ctx) error {
-	specializations, err := controller.Service.GetAll()
-	if err != nil {
-		return err
-	}
+	data := controller.Service.GetAll()
 
-	response := model.WebResponse[[]model.SpecializationData]{
-		Code: 200,
-		Data: specializations,
-	}
-
-	return ctx.Status(response.Code).JSON(response)
+	return ctx.Status(200).JSON(model.SuccessResponse[[]model.SpecializationResponse]{
+		Code:   200,
+		Status: "OK",
+		Data:   data,
+	})
 }
 
 func (controller *SpecializationController) GetOne(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
+	data := controller.Service.GetOne(id)
 
-	specialization, err := controller.Service.GetOne(id)
-	if err != nil {
-		return err
-	}
-
-	response := model.WebResponse[model.SpecializationData]{
-		Code: 200,
-		Data: specialization,
-	}
-
-	return ctx.Status(response.Code).JSON(response)
+	return ctx.Status(200).JSON(model.SuccessResponse[model.SpecializationResponse]{
+		Code:   200,
+		Status: "OK",
+		Data:   data,
+	})
 }
 
 func (controller *SpecializationController) Update(ctx *fiber.Ctx) error {
-	id := ctx.Params("id")
-	request := model.SpecializationRequest{}
-
-	if err := helper.ParseAndValidate[*model.SpecializationRequest](ctx, &request, controller.Validate); err != nil {
-		return err
+	request := model.UpdateSpecializationRequest{
+		ID: ctx.Params("id"),
 	}
+	helper.ParseAndValidate[*model.UpdateSpecializationRequest](ctx, &request, controller.Validate)
+	data := controller.Service.Update(request)
 
-	specialization, err := controller.Service.Update(id, request)
-	if err != nil {
-		return err
-	}
-
-	response := model.WebResponse[model.SpecializationData]{
-		Code: 200,
-		Data: specialization,
-	}
-
-	return ctx.Status(response.Code).JSON(response)
+	return ctx.Status(200).JSON(model.SuccessResponse[model.SpecializationResponse]{
+		Code:   200,
+		Status: "OK",
+		Data:   data,
+	})
 }
 
 func (controller *SpecializationController) Delete(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
+	data := controller.Service.Delete(id)
 
-	specialization, err := controller.Service.Delete(id)
-	if err != nil {
-		return err
-	}
-
-	response := model.WebResponse[model.SpecializationData]{
-		Code: 200,
-		Data: specialization,
-	}
-
-	return ctx.Status(response.Code).JSON(response)
+	return ctx.Status(200).JSON(model.SuccessResponse[model.SpecializationResponse]{
+		Code:   200,
+		Status: "OK",
+		Data:   data,
+	})
 }

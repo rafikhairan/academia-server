@@ -13,7 +13,7 @@ type UserClaims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(user model.UserAuthData) string {
+func GenerateToken(user model.User) string {
 	JWTConfig := config.AppConfig.JWT
 
 	claims := UserClaims{

@@ -1,7 +1,9 @@
 package service
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/rafikhairan/academia/auth"
+	"github.com/rafikhairan/academia/exception"
+	"github.com/rafikhairan/academia/helper"
 	"github.com/rafikhairan/academia/model"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -15,42 +17,45 @@ func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{DB: db}
 }
 
-func (service *UserService) Register(request model.RegisterRequest) (model.UserAuthData, error) {
+func (service *UserService) Register(request model.RegisterRequest) model.UserResponse {
 	var user model.User
-	var userAuthData model.UserAuthData
 
-	if result := service.DB.First(&user, "email = ?", request.Email); result.RowsAffected >= 1 {
-		return userAuthData, fiber.NewError(400, "register failed")
+	result := service.DB.Take(&user, "email = ?", request.Email)
+	if result.RowsAffected >= 1 {
+		panic(exception.NewBadRequestError("Register failed"))
 	}
 
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 10)
-	if err != nil {
-		return userAuthData, err
-	}
+	helper.PanicIfError(err)
 
 	user = model.User{
 		Email:    request.Email,
 		Password: string(hashPassword),
 	}
 
-	if result := service.DB.Create(&user).Scan(&userAuthData); result.Error != nil {
-		return userAuthData, result.Error
-	}
+	result = service.DB.Create(&user)
+	helper.PanicIfError(result.Error)
 
-	return userAuthData, nil
+	return model.UserResponse{
+		ID:    user.ID,
+		Email: user.Email,
+	}
 }
 
-func (service *UserService) Login(request model.LoginRequest) (model.UserAuthData, error) {
+func (service *UserService) Login(request model.LoginRequest) model.UserResponse {
 	var user model.User
-	var userAuthData model.UserAuthData
 
-	if result := service.DB.First(&user, "email = ?", request.Email).Scan(&userAuthData); result.RowsAffected == 0 {
-		return userAuthData, fiber.NewError(404, "email not found")
+	if result := service.DB.Where("email = ?", request.Email).Take(&user); result.RowsAffected == 0 {
+		panic(exception.NewBadRequestError("Login failed"))
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		return userAuthData, fiber.NewError(401, "password incorrect")
+		panic(exception.NewBadRequestError("Login failed"))
 	}
 
-	return userAuthData, nil
+	return model.UserResponse{
+		ID:    user.ID,
+		Email: user.Email,
+		Token: auth.GenerateToken(user),
+	}
 }

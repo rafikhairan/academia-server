@@ -8,9 +8,10 @@ type User struct {
 	Password string
 }
 
-type UserAuthData struct {
+type UserResponse struct {
 	ID    uuid.UUID `json:"id"`
 	Email string    `json:"email"`
+	Token string    `json:"token,omitempty"`
 }
 
 type RegisterRequest struct {

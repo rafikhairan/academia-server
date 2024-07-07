@@ -8,13 +8,19 @@ type Specialization struct {
 	Description string
 }
 
-type SpecializationData struct {
+type SpecializationResponse struct {
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 }
 
-type SpecializationRequest struct {
+type CreateSpecializationRequest struct {
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description"`
+}
+
+type UpdateSpecializationRequest struct {
+	ID          string `json:"id" validate:"required"`
 	Name        string `json:"name" validate:"required"`
 	Description string `json:"description"`
 }

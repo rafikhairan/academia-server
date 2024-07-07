@@ -3,7 +3,6 @@ package controller
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"github.com/rafikhairan/academia/auth"
 	"github.com/rafikhairan/academia/helper"
 	"github.com/rafikhairan/academia/model"
 	"github.com/rafikhairan/academia/service"
@@ -23,41 +22,24 @@ func NewUserController(service *service.UserService, Validate *validator.Validat
 
 func (controller *UserController) Register(ctx *fiber.Ctx) error {
 	request := model.RegisterRequest{}
+	helper.ParseAndValidate[*model.RegisterRequest](ctx, &request, controller.Validate)
+	data := controller.Service.Register(request)
 
-	if err := helper.ParseAndValidate[*model.RegisterRequest](ctx, &request, controller.Validate); err != nil {
-		return err
-	}
-
-	user, err := controller.Service.Register(request)
-	if err != nil {
-		return err
-	}
-
-	response := model.WebResponse[model.UserAuthData]{
-		Code: 201,
-		Data: user,
-	}
-
-	return ctx.Status(response.Code).JSON(response)
+	return ctx.Status(201).JSON(model.SuccessResponse[model.UserResponse]{
+		Code:   201,
+		Status: "CREATED",
+		Data:   data,
+	})
 }
 
 func (controller *UserController) Login(ctx *fiber.Ctx) error {
 	request := model.LoginRequest{}
+	helper.ParseAndValidate[*model.LoginRequest](ctx, &request, controller.Validate)
+	data := controller.Service.Login(request)
 
-	if err := helper.ParseAndValidate[*model.LoginRequest](ctx, &request, controller.Validate); err != nil {
-		return err
-	}
-
-	user, err := controller.Service.Login(request)
-	if err != nil {
-		return err
-	}
-
-	response := model.WebResponse[model.UserAuthData]{
-		Code: 200,
-		Data: user,
-	}
-	response.Token = auth.GenerateToken(user)
-
-	return ctx.Status(response.Code).JSON(response)
+	return ctx.Status(200).JSON(model.SuccessResponse[model.UserResponse]{
+		Code:   200,
+		Status: "OK",
+		Data:   data,
+	})
 }
