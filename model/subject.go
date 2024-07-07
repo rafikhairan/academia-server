@@ -1,28 +1,26 @@
 package model
 
-import (
-	"github.com/google/uuid"
-)
+import "github.com/google/uuid"
 
-type Specialization struct {
+type Subject struct {
 	BaseModel
-	Name        string
-	Description *string
-	Subjects    []Subject `gorm:"many2many:subject_specializations"`
+	Name            string
+	Description     *string
+	Specializations []Specialization `gorm:"many2many:subject_specializations"`
 }
 
-type SpecializationResponse struct {
+type SubjectResponse struct {
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	Description *string   `json:"description"`
 }
 
-type CreateSpecializationRequest struct {
+type CreateSubjectRequest struct {
 	Name        string  `json:"name" validate:"required"`
 	Description *string `json:"description"`
 }
 
-type UpdateSpecializationRequest struct {
+type UpdateSubjectRequest struct {
 	ID          string  `json:"id" validate:"required"`
 	Name        string  `json:"name" validate:"required"`
 	Description *string `json:"description"`

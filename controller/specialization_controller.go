@@ -69,11 +69,10 @@ func (controller *SpecializationController) Update(ctx *fiber.Ctx) error {
 
 func (controller *SpecializationController) Delete(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	data := controller.Service.Delete(id)
+	controller.Service.Delete(id)
 
-	return ctx.Status(200).JSON(model.SuccessResponse[model.SpecializationResponse]{
+	return ctx.Status(200).JSON(model.SuccessResponse[*model.SpecializationResponse]{
 		Code:   200,
 		Status: "OK",
-		Data:   data,
 	})
 }

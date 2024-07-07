@@ -73,11 +73,9 @@ func (service *SpecializationService) Update(request model.UpdateSpecializationR
 	return toSpecializationResponse(specialization)
 }
 
-func (service *SpecializationService) Delete(id string) model.SpecializationResponse {
+func (service *SpecializationService) Delete(id string) {
 	specialization := checkSpecializationMustExists(service.DB, id)
 
 	result := service.DB.Delete(&specialization)
 	helper.PanicIfError(result.Error)
-
-	return toSpecializationResponse(specialization)
 }
